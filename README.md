@@ -1,2 +1,5 @@
-# Web-Based
-This project is made by a single entity i Fn1ky revoke the right to reveal any data about myself
+# Web-Based  
+
+This project is developed by a single entity.  
+
+I, Fn1ky, retain the right to keep all personal information private and do not authorize the disclosure of any personal data related to myself.
