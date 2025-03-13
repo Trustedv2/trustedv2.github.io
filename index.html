@@ -2,6 +2,7 @@
 <head>
 <h1>Website 5</h1>
 <p>Welcome to the website where you can explore forums easily to access information</p>
+<body>
 <style>
 body  {background-color: black; }
 h1  {color: white;}
@@ -12,7 +13,7 @@ p  {color: white;}
 <h1>Forums</h1>
 <p>Welcome to the place of information.stories and more.</p>
 
-<div id="Greet Screen">
+<div id="Login Section">
 <h1>Login as Guest</h1>
 <button id="Login as Guest">Login as Guest</button>
 
@@ -22,6 +23,44 @@ p  {color: white;}
 <p id="system-message" style="color: green;"></p>
 </div>
 <script>
+// generates a random guest name
+document.getElementById("Login as Guest").addEventListener("click", function) {
+const guestName = "Guest" + Math.floor(Math.random() * 1000);
+
+//display welcome message
+alert("Welcome to the place where you can find information,stories and more!")
+
+// Hiding the login section
+document.getElementById("Login Section").style.display = "none";
+document.getEelementById("forum-section").style.display = "block";
+
+// Store the guest name locally (for future if needed)
+localStorage.setItem("guestname", guestName);
+
+// Load posts(demo version)
+loadForumPosts();
+});
+
+function LoadForumPosts() {
+// Sample Posts
+const posts= [
+{ id: 1, title:"First Post", content:"This is the first post!"},
+  {id: 2, title:"Second Post", content:"This is the second post!"}
+];
+
+const postList = document.getElementById("post-list");
+posts.ForEach(post => {
+const postElement = document.createElement("div");
+postElement.classList.add("post");
+postElement.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p><button class="like-btn" onclick="likePost(${post.id})">Like</button>`;
+postlist.apendChild(postElement);
+});
+}
+
+function likePost(postId)
+//Show a alert when the guest likes a post 
+alert(`You Liked Post #${postId}`);
+ } 
 </script>
 </body>
 </html>
