@@ -25,10 +25,10 @@ p  {color: white;}
 <script>
 // generates a random guest name
 document.getElementById("guest-login").addEventListener("click", function) {
-const guestName = "Guest" + Math.floor(Math.random() * 1000);
+const guestName = "Guest";
 
 //display welcome message
-alert("Welcome to the place where you can find information,stories and more!")
+alert(`You are logged in as ${guestName}!`)
 
 // Hiding the login section
 document.getElementById("Login Section").style.display = "none";
