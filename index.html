@@ -1,64 +1,78 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-<h1>Website 5</h1>
-<p>Welcome to the website where you can explore forums easily to access information</p>
-<link rel="icon" href="images.png" type="image/png">
-<style>
-body  {background-color: black; }
-h1  {color: white;}
-p  {color: white;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website 5</title>
+    <link rel="icon" href="images.png" type="image/png">
+    <style>
+        body { background-color: black; }
+        h1, p { color: white; }
+    </style>
 </head>
 <body>
-<h1>Forums</h1>
-<p>Welcome to the place of information.stories and more.</p>
-<script>
-<div id="Login Section">
-<h1>Login as Guest</h1>
-<button id="guest-login">Login as Guest</button>
 
-<div id="Fn1ky's Forum" style="display: none;">
-<h2>Forum-Posts</h2>
-<div id="Posts"></div>
-<p id="system-message" style="color: green;"></p>
-</div>
-<script>
-// generates a random guest name
-document.getElementById("guest-login").addEventListener("click", function) {
-const guestName = "Guest";
-alert(`You are logged in as ${guestName}!`)
+    <h1>Website 5</h1>
+    <p>Welcome to the website where you can explore forums easily to access information.</p>
 
-// Hiding the login section
-document.getElementById("Login Section").style.display = "none";
-document.getEelementById("forum-section").style.display = "block";
+    <h1>Forums</h1>
+    <p>Welcome to the place of information, stories, and more.</p>
 
-// Store the guest name locally (for future if needed)
-localStorage.setItem("guestname", guestName);
+    <div id="LoginSection">
+        <h1>Login as Guest</h1>
+        <button id="guest-login">Login as Guest</button>
+    </div>
 
-// Load posts(demo version)
-loadForumPosts();
-});
+    <div id="Fn1kyForum" style="display: none;">
+        <h2>Forum-Posts</h2>
+        <div id="Posts"></div>
+        <p id="system-message" style="color: green;"></p>
+    </div>
 
-function LoadForumPosts() {
-// Sample Posts
-const posts= [
-{ id: 1, title:"First Post", content:"This is the first post!"},
-  {id: 2, title:"Second Post", content:"This is the second post!"}
-];
+    <script>
+        // Generates a random guest name
+        document.getElementById("guest-login").addEventListener("click", function() {
+            const guestName = "Guest";
+            alert(`You are logged in as ${guestName}!`);
 
-const postList = document.getElementById("post-list");
-posts.ForEach(post => {
-const postElement = document.createElement("div");
-postElement.classList.add("post");
-postElement.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p><button class="like-btn" onclick="likePost(${post.id})">Like</button>`;
-postlist.apendChild(postElement);
-});
-}
+            // Hiding the login section and showing the forum
+            document.getElementById("LoginSection").style.display = "none";
+            document.getElementById("Fn1kyForum").style.display = "block";
 
-function likePost(postId)
-//Show a alert when the guest likes a post 
-alert(`You Liked Post #${postId}`);
- } 
-</script>
+            // Store the guest name locally (for future if needed)
+            localStorage.setItem("guestname", guestName);
+
+            // Load posts (demo version)
+            loadForumPosts();
+        });
+
+        function loadForumPosts() {
+            // Sample Posts
+            const posts = [
+                { id: 1, title: "First Post", content: "This is the first post!" },
+                { id: 2, title: "Second Post", content: "This is the second post!" }
+            ];
+
+            const postList = document.getElementById("Posts");
+            postList.innerHTML = ""; // Clear previous posts
+
+            posts.forEach(post => {
+                const postElement = document.createElement("div");
+                postElement.classList.add("post");
+                postElement.innerHTML = `
+                    <h3>${post.title}</h3>
+                    <p>${post.content}</p>
+                    <button class="like-btn" onclick="likePost(${post.id})">Like</button>
+                `;
+                postList.appendChild(postElement);
+            });
+        }
+
+        function likePost(postId) {
+            // Show an alert when the guest likes a post
+            alert(`You Liked Post #${postId}`);
+        }
+    </script>
+
 </body>
 </html>
