@@ -59,6 +59,13 @@
                     <h3>${post.title}</h3>
                     <p>${post.content}</p>
                     <button class="like-btn" onclick="likePost(${post.id})">Like</button>
+                    <div class='comment-section'>
+                    <h1>Leave a Comment:</h1>
+                    <textarea class="comment-box" placeholder="Write your comment here"></textarea>
+                    <br>
+                    <button class="sumbit-btn" onclick="submitComment" ({$post.id})">Like</button>
+                    <div id="comments-${post.id}"></div>
+                    </div>
                 `;
                 postList.appendChild(postElement);
             });
@@ -68,7 +75,22 @@
             // Show an alert when the guest likes a post
             alert(`You Liked Post #${postId}`);
         }
-    </script>
+function submitComment(postId) {
+            const commentBox = document.querySelector(`#comments-${postId} .comment-box`);
+            const commentsDiv = document.getElementById(`comments-${postId}`);
 
+            if (commentBox.value.trim() !== "") {
+                const newComment = document.createElement('p');
+                newComment.textContent = commentBox.value;
+                commentsDiv.appendChild(newComment);
+                commentBox.value = ""; // Clear comment box
+            } else {
+                alert("Comment cannot be empty!");
+            }
+        }
+document.getElementById("notification-btn").addEventListener("click"), function() {
+    const notificationMessage = document.getElementById("notification-message");
+    notificationMessage.style.display = "block";
+    </script>
 </body>
 </html>
