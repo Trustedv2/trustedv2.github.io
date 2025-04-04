@@ -1,0 +1,8 @@
+# Ignore API keys and environment configs
+.env
+
+# Node.js dependencies
+node_modules/
+
+# Optional: logs
+*.log
