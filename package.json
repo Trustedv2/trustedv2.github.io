@@ -1,0 +1,18 @@
+{
+  "name": "fn1ky.github.io",
+  "version": "1.0.0",
+  "description": "We are a non profit and not collecting data about you the website was made for people to connect to each other throught forums.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "openai": "^4.91.1"
+  }
+}
