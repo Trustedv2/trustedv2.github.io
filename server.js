@@ -1,38 +1,54 @@
+// server.js
+
 const express = require('express');
-const fetch = require('node-fetch'); // For API requests to OpenAI
-require('dotenv').config();
+const fetch = require('node-fetch'); // Using node-fetch for HTTP requests
+const dotenv = require('dotenv');
+dotenv.config(); // Load environment variables from .env file
 
 const app = express();
-app.use(express.json()); // Middleware to parse JSON requests
+const PORT = process.env.PORT || 3000;
 
-// Route to handle OpenAI API calls
-app.post('/api/generate', async (req, res) => {
-    const prompt = req.body.prompt;
+// Middleware to parse incoming JSON requests
+app.use(express.json());
+
+// Route to handle chat requests from frontend
+app.post('/chat', async (req, res) => {
+    const { message } = req.body; // The message sent from the frontend
+
+    if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+    }
 
     try {
-        // Make a request to OpenAI API with the provided prompt
+        // Make a request to OpenAI's API
         const response = await fetch('https://api.openai.com/v1/completions', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`, // Using the API key from the .env file
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` // Your OpenAI API key
             },
             body: JSON.stringify({
-                model: 'gpt-3.5-turbo', // Ensure correct model is selected
-                prompt: prompt,
-                max_tokens: 100
+                model: 'gpt-3.5-turbo', // or any other model you're using
+                messages: [{ role: 'user', content: message }] // Send user message to OpenAI
             })
         });
 
-        const data = await response.json(); // Get the response data from OpenAI
-        res.json(data); // Send the data back to the frontend
+        const data = await response.json();
+
+        // Handle if there is an error from OpenAI API
+        if (data.error) {
+            return res.status(500).json({ error: data.error.message });
+        }
+
+        // Send the AI's response back to the frontend
+        return res.json({ reply: data.choices[0].message.content });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch from OpenAI API' });
+        console.error('Error interacting with OpenAI API:', error);
+        res.status(500).json({ error: 'Failed to communicate with AI' });
     }
 });
 
-// Set the port for the server to listen on (use environment variable or default to 3000)
-const PORT = process.env.PORT || 3000;
+// Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
