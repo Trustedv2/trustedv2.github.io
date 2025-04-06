@@ -6,7 +6,7 @@
     <title>Website 5</title>
     <link rel="icon" href="images.png" type="image/png">
     <style>
-        body  {background-color: white; }
+        body  {background-color: grey; }
         h1  {color: black; }
         p  {color: black; }
     </style>
@@ -94,37 +94,19 @@
             const notificationMessage = document.getElementById("notification-message");
             notificationMessage.style.display = "block";
             const { OpenAI } = require("openai");  // Import OpenAI class
-const express = require("express");
-const app = express();
-const dotenv = require("dotenv");
 
-dotenv.config();  // Load environment variables from .env
+            document.getElementById('generate').addEventListener('click', async () => {
+        const prompt = document.getElementById('prompt').value;
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,  // Use API key from environment
-});
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: prompt }),
+        });
 
-app.use(express.json()); // Middleware to parse JSON requests
-
-app.post("/api/chat", async (req, res) => {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: req.body.message }],
+        const data = await response.json();
+        document.getElementById('result').textContent = data.choices[0].text;
     });
-
-    // Send the response back to the frontend
-    res.json({ reply: response.choices[0].message.content });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
     </script>
 </body>
 </html>
