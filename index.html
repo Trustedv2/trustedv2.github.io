@@ -6,21 +6,25 @@
     <title>Website 5</title>
     <link rel="icon" href="images.png" type="image/png">
     <style>
-        body { background-color: grey; }
-        h1 { color: black; }
-        p { color: black; }
+        body { background-color: black; }
+        h1, p { color: white; }
     </style>
 </head>
 <body>
 
     <h1>Website 5</h1>
+    <p>Welcome to the website where you can explore forums easily to access information.</p>
+
+    <h1>Forums</h1>
+    <p>Welcome to the place of information, stories, and more.</p>
+
     <div id="LoginSection">
         <h1>Login as Guest</h1>
         <button id="guest-login">Login as Guest</button>
     </div>
 
     <div id="Fn1kyForum" style="display: none;">
-        <h1>Forum-Posts</h1>
+        <h2>Forum-Posts</h2>
         <div id="Posts"></div>
         <p id="system-message" style="color: green;"></p>
     </div>
@@ -60,11 +64,11 @@
                     <p>${post.content}</p>
                     <button class="like-btn" onclick="likePost(${post.id})">Like</button>
                     <div class='comment-section'>
-                    <h1>Leave a Comment:</h1>
-                    <textarea class="comment-box" placeholder="Write your comment here"></textarea>
-                    <br>
-                    <button class="submit-btn" onclick="submitComment(${post.id})">Submit</button>
-                    <div id="comments-${post.id}"></div>
+                        <h3>Leave a Comment:</h3>
+                        <textarea class="comment-box" id="comment-box-${post.id}" placeholder="Write your comment here"></textarea>
+                        <br>
+                        <button class="submit-btn" onclick="submitComment(${post.id})">Submit</button>
+                        <div id="comments-${post.id}"></div>
                     </div>
                 `;
                 postList.appendChild(postElement);
@@ -77,7 +81,7 @@
         }
 
         function submitComment(postId) {
-            const commentBox = document.querySelector(`#comments-${postId} .comment-box`);
+            const commentBox = document.querySelector(`#comment-box-${postId}`);
             const commentsDiv = document.getElementById(`comments-${postId}`);
 
             if (commentBox.value.trim() !== "") {
@@ -89,25 +93,6 @@
                 alert("Comment cannot be empty!");
             }
         }
-
-        // OpenAI API call to generate response
-        document.getElementById("notification-btn").addEventListener("click", function() {
-            const notificationMessage = document.getElementById("notification-message");
-            notificationMessage.style.display = "block";
-
-            document.getElementById('generate').addEventListener('click', async () => {
-                const prompt = document.getElementById('prompt').value;
-
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt }),
-                });
-
-                const data = await response.json();
-                document.getElementById('result').textContent = data.choices[0].text;
-            });
-        });
     </script>
 
 </body>
