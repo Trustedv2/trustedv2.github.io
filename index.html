@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website 5</title>
-    <link rel="icon" href="new.png" type="image/png">
+    <link rel="icon" href="badge2.png" type="image/png">
     <style>
         body { background-color: white; }
         h1, p { color: black; }
-    font-family: 'Comic Sans MS', sans-serif;
+        font-family: 'Comic Sans MS', sans-serif;
     </style>
 </head>
 <body>
@@ -70,6 +70,9 @@
                     </div>
                 `;
                 postList.appendChild(postElement);
+
+                // Load stored comments for each post
+                loadStoredComments(post.id);
             });
         }
 
@@ -86,10 +89,34 @@
                 const newComment = document.createElement('p');
                 newComment.textContent = commentBox.value;
                 commentsDiv.appendChild(newComment);
+
+                // Save the comment in localStorage to persist on refresh
+                saveComment(postId, commentBox.value);
+
                 commentBox.value = ""; // Clear comment box
             } else {
                 alert("Comment cannot be empty!");
             }
+        }
+
+        // Function to save the comment in localStorage
+        function saveComment(postId, comment) {
+            let comments = JSON.parse(localStorage.getItem(`comments-${postId}`)) || [];
+            comments.push(comment);
+            localStorage.setItem(`comments-${postId}`, JSON.stringify(comments));
+        }
+
+        // Function to load stored comments from localStorage
+        function loadStoredComments(postId) {
+            const comments = JSON.parse(localStorage.getItem(`comments-${postId}`)) || [];
+            const commentsDiv = document.getElementById(`comments-${postId}`);
+            commentsDiv.innerHTML = ""; // Clear existing comments
+
+            comments.forEach(comment => {
+                const commentElement = document.createElement('p');
+                commentElement.textContent = comment;
+                commentsDiv.appendChild(commentElement);
+            });
         }
     </script>
 
