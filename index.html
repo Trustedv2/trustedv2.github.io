@@ -27,13 +27,13 @@
         <p id="system-message" style="color: green;"></p>
     </div>
 
-<!-- Chat Interface -->
-<div id="chatbox" style="display: none;">
-    <h3>Chat with ChatGPT</h3>
-    <div id="chat-container"></div>
-    <textarea id="chat-input" placeholder="Type your message here"></textarea>
-    <button id="send-message">Send</button>
-</div>
+    <!-- Chat Interface -->
+    <div id="chatbox" style="display: none;">
+        <h3>Chat with ChatGPT</h3>
+        <div id="chat-container"></div>
+        <textarea id="chat-input" placeholder="Type your message here"></textarea>
+        <button id="send-message">Send</button>
+    </div>
 
     <script>
         // Generates a random guest name
@@ -47,6 +47,9 @@
 
             // Store the guest name locally (for future if needed)
             localStorage.setItem("guestname", guestName);
+
+            // Show chat box
+            document.getElementById("chatbox").style.display = "block"; // Display the chatbox
 
             // Load posts (demo version)
             loadForumPosts();
@@ -110,10 +113,41 @@
             }
         }
 
-        document.getElementById("notification-btn").addEventListener("click", function() {
-            const notificationMessage = document.getElementById("notification-message");
-            notificationMessage.style.display = "block";
+        // ChatGPT functionality
+        document.getElementById("send-message").addEventListener("click", async function() {
+            const message = document.getElementById("chat-input").value;
+            if (!message.trim()) return;
+
+            // Add user message to chat container
+            addMessageToChat('You', message);
+
+            // Send message to server to interact with OpenAI API
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+            if (data.reply) {
+                addMessageToChat('ChatGPT', data.reply);
+            } else {
+                addMessageToChat('ChatGPT', 'Sorry, something went wrong.');
+            }
+
+            document.getElementById("chat-input").value = ""; // Clear input field
         });
+
+        function addMessageToChat(sender, message) {
+            const chatContainer = document.getElementById("chat-container");
+            const messageElement = document.createElement('div');
+            messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to the latest message
+        }
+
     </script>
 
 </body>
