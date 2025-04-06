@@ -1,5 +1,3 @@
-// server.js
-
 const express = require('express');
 const fetch = require('node-fetch'); // Using node-fetch for HTTP requests
 const dotenv = require('dotenv');
@@ -21,14 +19,14 @@ app.post('/chat', async (req, res) => {
 
     try {
         // Make a request to OpenAI's API
-        const response = await fetch('https://api.openai.com/v1/completions', {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` // Your OpenAI API key
             },
             body: JSON.stringify({
-                model: 'gpt-3.5-turbo', // or any other model you're using
+                model: 'gpt-3.5-turbo', // or 'gpt-4' if you're using that model
                 messages: [{ role: 'user', content: message }] // Send user message to OpenAI
             })
         });
