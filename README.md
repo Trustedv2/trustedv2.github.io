@@ -4,5 +4,5 @@ We are a non profit and not collecting data about you the website was made for p
 # Partners
 I am partners with chatgpt we are working with ai to make the website better
 
-# Coming Soon
-This section is coming soon
+# Developer Notes
+Any comments sent will be displayed on the website
