@@ -121,20 +121,25 @@
             // Add user message to chat container
             addMessageToChat('You', message);
 
-            // Send message to server to interact with OpenAI API
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message: message })
-            });
+            try {
+                // Send message to server to interact with OpenAI API
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
 
-            const data = await response.json();
-            if (data.reply) {
-                addMessageToChat('ChatGPT', data.reply);
-            } else {
-                addMessageToChat('ChatGPT', 'Sorry, something went wrong.');
+                const data = await response.json();
+                if (data.reply) {
+                    addMessageToChat('ChatGPT', data.reply);
+                } else {
+                    addMessageToChat('ChatGPT', 'Sorry, something went wrong.');
+                }
+            } catch (error) {
+                console.error('Error communicating with the server:', error);
+                addMessageToChat('ChatGPT', 'Sorry, there was an error. Please try again.');
             }
 
             document.getElementById("chat-input").value = ""; // Clear input field
@@ -152,3 +157,4 @@
 
 </body>
 </html>
+          
