@@ -3,126 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RustHub</title>
-    <link rel="icon" href="new.png" type="image/png">
+    <title>ChatGPT Web App</title>
     <style>
-        body { background-color: white; }
-        h1, p { color: black; }
-        font-family: 'Comic Sans MS', sans-serif;
+        /* Basic styling for the chat container */
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif; /* Comic Sans MS font */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .chat-container {
+            width: 400px;
+            max-width: 100%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 500px;
+        }
+
+        #chat-container {
+            flex: 1;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            height: 350px;
+        }
+
+        .message {
+            margin: 10px 0;
+        }
+
+        .message strong {
+            color: #1a73e8;
+        }
+
+        .user {
+            color: #333;
+        }
+
+        .chatbot {
+            color: #4CAF50;
+        }
+
+        #chat-input {
+            width: calc(100% - 40px);
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #chat-form {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        #send-button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #1669c1;
+        }
+
+        .message.loading {
+            color: #f3a;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-
-    <h1>Website 5</h1>
-    <p>Welcome to the website where you can explore forums easily to access information.</p>
-    
-    <div id="LoginSection">
-        <h1>Login as Guest</h1>
-        <button id="guest-login">Login as Guest</button>
-    </div>
-
-    <div id="Fn1kyForum" style="display: none;">
-        <h2>Forum-Posts</h2>
-        <div id="Posts"></div>
-        <p id="system-message" style="color: green;"></p>
-    </div>
-
-    <!-- Chat Interface -->
-    <div id="chatbox" style="display: none;">
-        <h3>Chat with ChatGPT</h3>
+    <div class="chat-container">
         <div id="chat-container"></div>
-        <textarea id="chat-input" placeholder="Type your message here"></textarea>
-        <button id="send-message">Send</button>
+        <form id="chat-form">
+            <input type="text" id="chat-input" placeholder="Type a message" />
+            <button type="submit" id="send-button">Send</button>
+        </form>
     </div>
 
     <script>
-        // Generates a random guest name
-        document.getElementById("guest-login").addEventListener("click", function() {
-            const guestName = "Guest";
-            alert(`You are logged in as ${guestName}!`);
+        // Handle the form submission
+        document.getElementById("chat-form").addEventListener("submit", async (event) => {
+            event.preventDefault();  // Prevent form from refreshing the page
 
-            // Hiding the login section and showing the forum
-            document.getElementById("LoginSection").style.display = "none";
-            document.getElementById("Fn1kyForum").style.display = "block";
-
-            // Store the guest name locally (for future if needed)
-            localStorage.setItem("guestname", guestName);
-
-            // Show chat box
-            document.getElementById("chatbox").style.display = "block"; // Display the chatbox
-
-            // Load posts (demo version)
-            loadForumPosts();
-        });
-
-        function loadForumPosts() {
-            // Sample Posts
-            const posts = [
-                { id: 1, title: "First Post", content: "This is the first post!" },
-                { id: 2, title: "Second Post", content: "This is the second post!" }
-            ];
-
-            const postList = document.getElementById("Posts");
-            postList.innerHTML = ""; // Clear previous posts
-
-            posts.forEach(post => {
-                const postElement = document.createElement("div");
-                postElement.classList.add("post");
-                postElement.innerHTML = `
-                    <h3>${post.title}</h3>
-                    <p>${post.content}</p>
-                    <button class="like-btn" onclick="likePost(${post.id})">Like</button>
-                    <div class='comment-section'>
-                        <h3>Leave a Comment:</h3>
-                        <textarea class="comment-box" id="comment-box-${post.id}" placeholder="Write your comment here"></textarea>
-                        <br>
-                        <button class="submit-btn" onclick="submitComment(${post.id})">Submit</button>
-                        <div id="comments-${post.id}"></div>
-                    </div>
-                `;
-                postList.appendChild(postElement);
-            });
-        }
-
-        function likePost(postId) {
-            // Show an alert when the guest likes a post
-            alert(`You Liked Post #${postId}`);
-        }
-
-        function submitComment(postId) {
-            const commentBox = document.querySelector(`#comment-box-${postId}`);
-            const commentsDiv = document.getElementById(`comments-${postId}`);
-
-            if (commentBox.value.trim() !== "") {
-                // Get the existing comments from localStorage, or initialize an empty array if none exist
-                let comments = JSON.parse(localStorage.getItem(`comments-post-${postId}`)) || [];
-
-                // Add the new comment to the array
-                comments.push(commentBox.value);
-
-                // Save the updated comments back to localStorage
-                localStorage.setItem(`comments-post-${postId}`, JSON.stringify(comments));
-
-                // Create a new element for the new comment
-                const newComment = document.createElement('p');
-                newComment.textContent = commentBox.value;
-                commentsDiv.appendChild(newComment);
-                commentBox.value = ""; // Clear comment box
-            } else {
-                alert("Comment cannot be empty!");
-            }
-        }
-
-        // ChatGPT functionality
-        document.getElementById("send-message").addEventListener("click", async function() {
             const message = document.getElementById("chat-input").value;
-            if (!message.trim()) return;
+            if (!message) return;  // Don't proceed if the input is empty
 
-            // Add user message to chat container
+            // Add the user's message to the chat
             addMessageToChat('You', message);
 
+            // Display a loading message while waiting for the AI's response
+            addMessageToChat('ChatGPT', 'Thinking...');
+
             try {
-                // Send message to server to interact with OpenAI API
+                // Make the request to the backend to get ChatGPT's reply
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: {
@@ -132,6 +123,8 @@
                 });
 
                 const data = await response.json();
+
+                // Check if there's a reply from ChatGPT and display it
                 if (data.reply) {
                     addMessageToChat('ChatGPT', data.reply);
                 } else {
@@ -142,18 +135,18 @@
                 addMessageToChat('ChatGPT', 'Sorry, there was an error. Please try again.');
             }
 
-            document.getElementById("chat-input").value = ""; // Clear input field
+            // Clear the input field after sending
+            document.getElementById("chat-input").value = "";
         });
 
+        // Function to add messages to the chat container
         function addMessageToChat(sender, message) {
             const chatContainer = document.getElementById("chat-container");
             const messageElement = document.createElement('div');
             messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
             chatContainer.appendChild(messageElement);
-            chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to the latest message
+            chatContainer.scrollTop = chatContainer.scrollHeight;  // Auto-scroll to the latest message
         }
-
     </script>
-
 </body>
 </html>
