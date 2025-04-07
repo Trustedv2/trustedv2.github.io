@@ -1,44 +1,50 @@
 const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const { Configuration, OpenAIApi } = require('openai');
-require('dotenv').config();
-
+const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// OpenAI config
-const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
+// Test route to confirm server is working
+app.get('/', (req, res) => {
+  res.send('Backend is working!');
 });
-const openai = new OpenAIApi(configuration);
 
-// POST route for ChatGPT
+// Route for interacting with ChatGPT
 app.post('/chat', async (req, res) => {
-    const userMessage = req.body.message;
-    if (!userMessage) {
-        return res.status(400).json({ error: 'No message provided' });
-    }
+  const { message } = req.body;
 
-    try {
-        const completion = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: userMessage }],
-        });
+  if (!message) {
+    return res.status(400).json({ error: 'Message is required' });
+  }
 
-        const reply = completion.data.choices[0].message.content;
-        res.json({ reply });
-    } catch (error) {
-        console.error('Error from OpenAI:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Failed to get response from OpenAI' });
-    }
+  try {
+    // Send message to OpenAI API (ChatGPT)
+    const response = await axios.post(
+      'https://api.openai.com/v1/completions',
+      {
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: message }],
+        max_tokens: 150,
+      },
+      {
+        headers: {
+          'Authorization': `Bearer YOUR_OPENAI_API_KEY`, // Replace with your actual OpenAI API key
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    // Send response back to the frontend
+    const reply = response.data.choices[0].message.content;
+    res.json({ reply });
+  } catch (error) {
+    console.error('Error interacting with OpenAI:', error);
+    res.status(500).json({ error: 'Failed to get a response from ChatGPT' });
+  }
 });
 
-// Start server
+// Start the server
 app.listen(PORT, () => {
-    console.log(`✅ Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
