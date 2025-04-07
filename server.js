@@ -1,15 +1,13 @@
 const express = require('express');
-const fetch = require('node-fetch'); // Use node-fetch for making HTTP requests
+const fetch = require('node-fetch');
 const dotenv = require('dotenv');
-dotenv.config(); // Load API key from .env file
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON
 app.use(express.json());
 
-// POST route to handle chat
 app.post('/chat', async (req, res) => {
     const { message } = req.body;
 
@@ -33,20 +31,16 @@ app.post('/chat', async (req, res) => {
         const data = await response.json();
 
         if (data.error) {
-            console.error('OpenAI API Error:', data.error);
             return res.status(500).json({ error: data.error.message });
         }
 
-        const reply = data.choices[0].message.content;
-        return res.json({ reply });
-
+        return res.json({ reply: data.choices[0].message.content });
     } catch (error) {
-        console.error('Server Error:', error);
-        res.status(500).json({ error: 'Failed to communicate with AI' });
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Server error while communicating with OpenAI.' });
     }
 });
 
-// Start server
 app.listen(PORT, () => {
-    console.log(`✅ Server is running on port ${PORT}`);
+    console.log(`✅ Server running on port ${PORT}`);
 });
