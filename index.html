@@ -2,150 +2,185 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGPT Web App</title>
+    <title>Rustfall</title>
+    <link rel="icon" href="new.png" type="image/png">
     <style>
-        /* Basic styling for the chat container */
         body {
-            font-family: 'Comic Sans MS', cursive, sans-serif; /* Comic Sans MS font */
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            background-color: #f0f0f0;
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f5f5f5;
-        }
-
-        .chat-container {
-            width: 400px;
-            max-width: 100%;
-            background-color: #fff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 500px;
         }
 
-        #chat-container {
-            flex: 1;
-            overflow-y: scroll;
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            height: 350px;
-        }
-
-        .message {
-            margin: 10px 0;
-        }
-
-        .message strong {
-            color: #1a73e8;
-        }
-
-        .user {
+        h1 {
+            text-align: center;
             color: #333;
         }
 
-        .chatbot {
-            color: #4CAF50;
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        #chat-input {
-            width: calc(100% - 40px);
-            padding: 10px;
-            margin-top: 10px;
+        .section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #chat-container {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f9f9f9;
             border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
             border-radius: 4px;
         }
 
-        #chat-form {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-
-        #send-button {
-            background-color: #1a73e8;
-            color: white;
+        button {
             padding: 10px 15px;
             border: none;
-            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
             cursor: pointer;
         }
 
-        #send-button:hover {
-            background-color: #1669c1;
+        button:hover {
+            background-color: #45a049;
         }
 
-        .message.loading {
-            color: #f3a;
-            font-style: italic;
+        .comment {
+            background: #eee;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+
+        strong {
+            color: #222;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div id="chat-container"></div>
-        <form id="chat-form">
-            <input type="text" id="chat-input" placeholder="Type a message" />
-            <button type="submit" id="send-button">Send</button>
-        </form>
+    <div class="container">
+        <h1>Rustfall</h1>
+
+        <div class="section" id="guest-login">
+            <h2>Login as Guest</h2>
+            <button onclick="guestLogin()">Login as Guest</button>
+        </div>
+
+        <div class="section" id="posts-section">
+            <h2>Posts</h2>
+            <div id="posts-container">
+                <!-- Sample post -->
+                <div class="post">
+                    <strong>Admin:</strong> Welcome to Rustfall!
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="comments-section">
+            <h2>Comments</h2>
+            <div id="comments-container"></div>
+            <textarea id="comment-input" placeholder="Write a comment..."></textarea>
+            <button onclick="addComment()">Post Comment</button>
+        </div>
+
+        <div class="section" id="chatgpt-section">
+            <h2>Chat with ChatGPT</h2>
+            <div id="chat-container"></div>
+            <input type="text" id="chat-input" placeholder="Type a message..." />
+            <button id="send-chat">Send</button>
+        </div>
     </div>
 
     <script>
-        // Handle the form submission
-        document.getElementById("chat-form").addEventListener("submit", async (event) => {
-            event.preventDefault();  // Prevent form from refreshing the page
+        // Guest login logic
+        function guestLogin() {
+            alert("Logged in as guest!");
+            // You could add sessionStorage or cookies to track if guest is logged in
+        }
 
-            const message = document.getElementById("chat-input").value;
-            if (!message) return;  // Don't proceed if the input is empty
+        // Comment persistence using localStorage
+        function loadComments() {
+            const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+            const container = document.getElementById("comments-container");
+            container.innerHTML = "";
+            comments.forEach(comment => {
+                const div = document.createElement("div");
+                div.className = "comment";
+                div.textContent = comment;
+                container.appendChild(div);
+            });
+        }
 
-            // Add the user's message to the chat
-            addMessageToChat('You', message);
+        function addComment() {
+            const input = document.getElementById("comment-input");
+            const text = input.value.trim();
+            if (!text) return;
 
-            // Display a loading message while waiting for the AI's response
-            addMessageToChat('ChatGPT', 'Thinking...');
+            const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+            comments.push(text);
+            localStorage.setItem("comments", JSON.stringify(comments));
+            input.value = "";
+            loadComments();
+        }
+
+        // Load comments on page load
+        window.onload = loadComments;
+
+        // ChatGPT chat logic
+        document.getElementById("send-chat").addEventListener("click", async () => {
+            const input = document.getElementById("chat-input");
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessageToChat("You", message);
+            addMessageToChat("ChatGPT", "Thinking...");
 
             try {
-                // Make the request to the backend to get ChatGPT's reply
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ message })
                 });
 
                 const data = await response.json();
-
-                // Check if there's a reply from ChatGPT and display it
+                const replies = document.querySelectorAll("#chat-container div");
                 if (data.reply) {
-                    addMessageToChat('ChatGPT', data.reply);
+                    replies[replies.length - 1].innerHTML = `<strong>ChatGPT:</strong> ${data.reply}`;
                 } else {
-                    addMessageToChat('ChatGPT', 'Sorry, something went wrong.');
+                    replies[replies.length - 1].innerHTML = `<strong>ChatGPT:</strong> Sorry, something went wrong.`;
                 }
             } catch (error) {
-                console.error('Error communicating with the server:', error);
-                addMessageToChat('ChatGPT', 'Sorry, there was an error. Please try again.');
+                console.error("Error:", error);
+                const replies = document.querySelectorAll("#chat-container div");
+                replies[replies.length - 1].innerHTML = `<strong>ChatGPT:</strong> Sorry, there was an error. Please try again.`;
             }
 
-            // Clear the input field after sending
-            document.getElementById("chat-input").value = "";
+            input.value = "";
         });
 
-        // Function to add messages to the chat container
         function addMessageToChat(sender, message) {
             const chatContainer = document.getElementById("chat-container");
-            const messageElement = document.createElement('div');
-            messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
-            chatContainer.appendChild(messageElement);
-            chatContainer.scrollTop = chatContainer.scrollHeight;  // Auto-scroll to the latest message
+            const msg = document.createElement("div");
+            msg.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            chatContainer.appendChild(msg);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
     </script>
 </body>
