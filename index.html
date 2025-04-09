@@ -39,7 +39,7 @@
             margin-bottom: 10px;
         }
 
-        input[type="text"], textarea {
+        input[type="text"], textarea, input[type="password"] {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
@@ -70,17 +70,45 @@
         strong {
             color: #222;
         }
+
+        #error-message {
+            color: red;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Rustfall</h1>
 
+        <!-- Guest Login Section -->
         <div class="section" id="guest-login">
             <h2>Login as Guest</h2>
             <button onclick="guestLogin()">Login as Guest</button>
         </div>
 
+        <!-- Account Creation Section -->
+        <div class="section" id="account-creation">
+            <h2>Create an Account</h2>
+            <form id="signup-form">
+                <input type="text" id="username" placeholder="Enter Username" required>
+                <input type="password" id="password" placeholder="Enter Password (min 8 characters)" required>
+                <button type="submit">Create Account</button>
+            </form>
+            <p id="error-message"></p>
+        </div>
+
+        <!-- Login Section -->
+        <div class="section" id="login-section">
+            <h2>Login</h2>
+            <form id="login-form">
+                <input type="text" id="login-username" placeholder="Enter Username" required>
+                <input type="password" id="login-password" placeholder="Enter Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p id="login-error-message"></p>
+        </div>
+
+        <!-- Posts Section -->
         <div class="section" id="posts-section">
             <h2>Posts</h2>
             <div id="posts-container">
@@ -91,6 +119,7 @@
             </div>
         </div>
 
+        <!-- Comments Section -->
         <div class="section" id="comments-section">
             <h2>Comments</h2>
             <div id="comments-container"></div>
@@ -98,6 +127,7 @@
             <button onclick="addComment()">Post Comment</button>
         </div>
 
+        <!-- ChatGPT Section -->
         <div class="section" id="chatgpt-section">
             <h2>Chat with ChatGPT</h2>
             <div id="chat-container"></div>
@@ -182,6 +212,49 @@
             chatContainer.appendChild(msg);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+
+        // Sign up form logic
+        document.getElementById("signup-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            // Validation checks
+            if (!username || !password) {
+                document.getElementById("error-message").textContent = "Username and password cannot be blank!";
+                return;
+            }
+
+            if (password.length < 8) {
+                document.getElementById("error-message").textContent = "Password must be at least 8 characters!";
+                return;
+            }
+
+            // Simulate account creation (replace with actual backend logic)
+            alert("Account created successfully!");
+            document.getElementById("signup-form").reset();  // Clear the form
+            document.getElementById("error-message").textContent = "";  // Reset error message
+        });
+
+        // Login form logic
+        document.getElementById("login-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById("login-username").value;
+            const password = document.getElementById("login-password").value;
+
+            // Validation checks
+            if (!username || !password) {
+                document.getElementById("login-error-message").textContent = "Please fill in both fields!";
+                return;
+            }
+
+            // Simulate successful login (replace with actual backend login)
+            alert("Logged in successfully!");
+            document.getElementById("login-form").reset();  // Clear the form
+            document.getElementById("login-error-message").textContent = "";  // Reset error message
+        });
     </script>
 </body>
 </html>
