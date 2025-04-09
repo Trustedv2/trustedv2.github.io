@@ -74,6 +74,12 @@
         #error-message {
             color: red;
         }
+
+        #username-display {
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -108,6 +114,11 @@
             <p id="login-error-message"></p>
         </div>
 
+        <!-- Username Display -->
+        <div id="username-display" style="display: none;">
+            <p>Welcome, <span id="user-name"></span></p>
+        </div>
+
         <!-- Posts Section -->
         <div class="section" id="posts-section">
             <h2>Posts</h2>
@@ -117,6 +128,8 @@
                     <strong>Admin:</strong> Welcome to Rustfall!
                 </div>
             </div>
+            <textarea id="post-input" placeholder="Write a post..."></textarea>
+            <button id="post-button" onclick="addPost()" style="display: none;">Create Post</button>
         </div>
 
         <!-- Comments Section -->
@@ -233,8 +246,8 @@
 
             // Simulate account creation (replace with actual backend logic)
             alert("Account created successfully!");
-            document.getElementById("signup-form").reset();  // Clear the form
-            document.getElementById("error-message").textContent = "";  // Reset error message
+            localStorage.setItem('username', username);  // Save username in localStorage
+            showLoggedInState(username);  // Show username and post button
         });
 
         // Login form logic
@@ -244,17 +257,38 @@
             const username = document.getElementById("login-username").value;
             const password = document.getElementById("login-password").value;
 
-            // Validation checks
-            if (!username || !password) {
-                document.getElementById("login-error-message").textContent = "Please fill in both fields!";
-                return;
+            // Simulate login validation (replace with actual backend check)
+            if (username === localStorage.getItem('username') && password === "correctpassword") {
+                alert("Logged in successfully!");
+                showLoggedInState(username);
+            } else {
+                document.getElementById("login-error-message").textContent = "Invalid credentials!";
             }
-
-            // Simulate successful login (replace with actual backend login)
-            alert("Logged in successfully!");
-            document.getElementById("login-form").reset();  // Clear the form
-            document.getElementById("login-error-message").textContent = "";  // Reset error message
         });
+
+        function showLoggedInState(username) {
+            // Show username and enable post button
+            document.getElementById("username-display").style.display = 'block';
+            document.getElementById("user-name").textContent = username;
+            document.getElementById("post-button").style.display = 'inline-block';
+            document.getElementById("login-section").style.display = 'none';
+            document.getElementById("account-creation").style.display = 'none';
+        }
+
+        // Post creation logic
+        function addPost() {
+            const postInput = document.getElementById("post-input");
+            const postText = postInput.value.trim();
+            if (!postText) return;
+
+            const postContainer = document.getElementById("posts-container");
+            const newPost = document.createElement("div");
+            newPost.className = "post";
+            newPost.innerHTML = `<strong>${localStorage.getItem('username')}:</strong> ${postText}`;
+            postContainer.appendChild(newPost);
+
+            postInput.value = "";
+        }
     </script>
 </body>
 </html>
