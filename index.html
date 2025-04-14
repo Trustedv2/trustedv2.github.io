@@ -1,179 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrustedV2 Forum</title>
+  <title>TrustedV2 Forum</title>
+  <style>
+    body { background-color: white; }
+    h1, p, label { color: black; }
+    #main-content, #post-section, #chat-section { display: none; }
+  </style>
 </head>
 <body>
 
-<div id="main-content" style="display: none;">
-    <h1>TrustedV2 Forum</h1>
-    <p>Welcome to the website where you see forum pages</p>
-    <p id="random-id"></p>
-    <button id="guest-login-btn" style="background-color: grey; color: black;">Guest Login</button>
-</div>
-
+<!-- Maintenance Message -->
 <div id="offline" style="display: none;">
-    <h1>The server is offline. We will be back online soon.</h1>
+  <h1>The server is offline. We will be back online.</h1>
 </div>
 
+<!-- Loading Screen -->
 <div id="loading">
-    <h1>Loading Screen</h1>
-    <p>Connecting to Server...</p>
+  <h1>Loading Screen</h1>
+  <p>Connecting to server...</p>
 </div>
 
-<style>
-    body {
-        background-color: white;
-    }
-    h1 {
-        color: black;
-    }
-    p {
-        color: black;
-    }
-    #loading {
-        text-align: center;
-        font-size: 20px;
-        color: blue;
-    }
-</style>
+<!-- Main Content -->
+<div id="main-content">
+  <h1>TrustedV2 Forum</h1>
+  <p>Welcome to the website where you see forum pages</p>
+
+  <!-- Account Creation -->
+  <h2>Create Account</h2>
+  <label>Username:</label>
+  <input type="text" id="create-username"><br>
+  <label>Password (min 8 chars):</label>
+  <input type="password" id="create-password"><br>
+  <button id="create-account-btn">Create Account</button>
+
+  <!-- Login -->
+  <h2>Login</h2>
+  <label>Username:</label>
+  <input type="text" id="login-username"><br>
+  <label>Password:</label>
+  <input type="password" id="login-password"><br>
+  <button id="login-btn">Login</button>
+
+  <p id="login-status"></p>
+</div>
+
+<!-- Post Section -->
+<div id="post-section">
+  <h2>Create a Post</h2>
+  <label>Title:</label>
+  <input type="text" id="post-title"><br>
+  <label>Message:</label>
+  <textarea id="post-message"></textarea><br>
+  <button id="submit-post">Submit Post</button>
+  <div id="posts"></div>
+</div>
 
 <script>
-// Hardcoded maintenance mode flag (Set this to true or false manually)
-const maintenanceMode = false; // Change to 'true' to activate maintenance mode
+  const maintenanceMode = false;
 
-// Toggle Maintenance Screen based on the mode
-if (maintenanceMode) {
-    document.getElementById("main-content").style.display = 'none';  // Hide main content
-    document.getElementById("offline").style.display = 'block';  // Show maintenance screen
-} else {
-    document.getElementById("main-content").style.display = 'none';  // Hide main content initially
-    document.getElementById("offline").style.display = 'none';  // Hide maintenance screen
-}
-
-// Function to generate a random 5-digit ID
-function generateRandomId() {
-    return Math.floor(Math.random() * 90000) + 10000; // 5 digits between 10000 and 99999
-}
-
-// Simulate server connection delay (using setTimeout)
-setTimeout(function() {
-    // Hide the loading screen and show the main content
+  if (maintenanceMode) {
     document.getElementById("loading").style.display = 'none';
-    document.getElementById("main-content").style.display = 'block';
+    document.getElementById("offline").style.display = 'block';
+  } else {
+    document.getElementById("offline").style.display = 'none';
 
-    // Generate a random ID and display it
-    const randomId = generateRandomId();
-    document.getElementById('random-id').textContent = `Your Guest ID: ${randomId}`;
+    setTimeout(() => {
+      document.getElementById("loading").style.display = 'none';
+      document.getElementById("main-content").style.display = 'block';
+    }, 2000);
+  }
 
-    // Add functionality to the "Guest Login" button
-    document.getElementById('guest-login-btn').addEventListener('click', function() {
-        alert(`Welcome, Guest ID: ${randomId}`);
-    });
-}, 3000); // Simulate 3 seconds of loading time
+  // Account creation
+  document.getElementById("create-account-btn").addEventListener("click", () => {
+    const username = document.getElementById("create-username").value.trim();
+    const password = document.getElementById("create-password").value;
 
-// Initializing local storage for users
-        if (!localStorage.getItem("users")) {
-            localStorage.setItem("users", JSON.stringify([])); // Empty users list initially
-        }
+    if (username && password.length >= 8) {
+      localStorage.setItem("user_" + username, password);
+      alert("Account created!");
+    } else {
+      alert("Username required. Password must be at least 8 characters.");
+    }
+  });
 
-        // Show Register Form
-        function showRegisterForm() {
-            document.getElementById("login-screen").classList.add("hidden");
-            document.getElementById("register-screen").classList.remove("hidden");
-        }
+  // Login
+  document.getElementById("login-btn").addEventListener("click", () => {
+    const username = document.getElementById("login-username").value.trim();
+    const password = document.getElementById("login-password").value;
+    const savedPassword = localStorage.getItem("user_" + username);
 
-        // Show Login Form
-        function showLoginForm() {
-            document.getElementById("register-screen").classList.add("hidden");
-            document.getElementById("login-screen").classList.remove("hidden");
-        }
+    if (savedPassword && savedPassword === password) {
+      document.getElementById("login-status").textContent = "Login successful!";
+      document.getElementById("post-section").style.display = "block";
+      localStorage.setItem("loggedInUser", username);
+    } else {
+      document.getElementById("login-status").textContent = "Invalid credentials.";
+    }
+  });
 
-        // Handle Login Logic
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            const users = JSON.parse(localStorage.getItem("users"));
-            
-            const user = users.find(user => user.username === username && user.password === password);
-            
-            if (user) {
-                localStorage.setItem("loggedInUser", JSON.stringify(user));
-                showMainContent();
-            } else {
-                alert("Invalid login credentials.");
-            }
-        }
+  // Post creation
+  document.getElementById("submit-post").addEventListener("click", () => {
+    const title = document.getElementById("post-title").value;
+    const message = document.getElementById("post-message").value;
+    const postsDiv = document.getElementById("posts");
 
-        // Handle Account Creation
-        function createAccount() {
-            const username = document.getElementById("register-username").value;
-            const password = document.getElementById("register-password").value;
+    if (title && message) {
+      const post = document.createElement("div");
+      post.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
+      postsDiv.appendChild(post);
 
-            if (password.length < 8) {
-                alert("Password must be at least 8 characters long.");
-                return;
-            }
-
-            const users = JSON.parse(localStorage.getItem("users"));
-            const existingUser = users.find(user => user.username === username);
-            
-            if (existingUser) {
-                alert("Username already taken.");
-                return;
-            }
-
-            const newUser = { username, password };
-            users.push(newUser);
-            localStorage.setItem("users", JSON.stringify(users));
-            alert("Account created successfully.");
-            showLoginForm();
-        }
-
-        // Show Main Content after Login
-        function showMainContent() {
-            const user = JSON.parse(localStorage.getItem("loggedInUser"));
-            document.getElementById("logged-in-user").textContent = user.username;
-            
-            document.getElementById("login-screen").classList.add("hidden");
-            document.getElementById("main-content").classList.remove("hidden");
-        }
-
-        // Handle Create Post
-        function createPost() {
-            const title = document.getElementById("post-title").value;
-            const content = document.getElementById("post-content").value;
-
-            if (!title || !content) {
-                alert("Please provide a title and content for the post.");
-                return;
-            }
-
-            alert("Post created successfully!");
-            // For now, we just alert and reset fields. Later, we can add code to store posts.
-        }
-
-        // Handle Chat Messages
-        function sendMessage() {
-            const username = document.getElementById("chat-username").value;
-            const message = document.getElementById("chat-message").value;
-
-            if (!username || !message) {
-                alert("Please enter a username and a message.");
-                return;
-            }
-
-            const chatMessagesDiv = document.getElementById("chat-messages");
-            const newMessage = document.createElement("p");
-            newMessage.textContent = `${username}: ${message}`;
-            chatMessagesDiv.appendChild(newMessage);
-            
-            // Clear input fields after sending the message
-            document.getElementById("chat-username").value = '';
-            document.getElementById("chat-message").value = '';
-        }
+      document.getElementById("post-title").value = "";
+      document.getElementById("post-message").value = "";
+    } else {
+      alert("Please enter both title and message.");
+    }
+  });
 </script>
+
 </body>
 </html>
