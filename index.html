@@ -1,63 +1,79 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-<title>TrustedV2 Forum</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustedV2 Forum</title>
 </head>
 <body>
-<div id="main-content">
-<h1>TrustedV2 Forum</h1>
-<p>Welcome to the website where you see forum pages</p>
+
+<div id="main-content" style="display: none;">
+    <h1>TrustedV2 Forum</h1>
+    <p>Welcome to the website where you see forum pages</p>
+    <p id="random-id"></p>
+    <button id="guest-login-btn" style="background-color: grey; color: black;">Guest Login</button>
 </div>
 
-  <div id="offline style="display: none;">
-<h1>The server is offline we will be back online</h1>
+<div id="offline" style="display: none;">
+    <h1>The server is offline. We will be back online soon.</h1>
 </div>
 
-  <div id="loading" style="display: none;">
-<h1>Loading Screen</h1>
-<p>Connecting to Server...</p>
+<div id="loading">
+    <h1>Loading Screen</h1>
+    <p>Connecting to Server...</p>
 </div>
 
 <style>
-body {background-color: white;}
-h1   {color: black;}
-p   {color: black;}
+    body {
+        background-color: white;
+    }
+    h1 {
+        color: black;
+    }
+    p {
+        color: black;
+    }
+    #loading {
+        text-align: center;
+        font-size: 20px;
+        color: blue;
+    }
 </style>
 
- <script>
- // Hardcoded maintenance mode flag (Set this to true or false manually)
-        const maintenanceMode = false; // Change to 'true' to activate maintenance mode
+<script>
+// Hardcoded maintenance mode flag (Set this to true or false manually)
+const maintenanceMode = false; // Change to 'true' to activate maintenance mode
 
-        // Toggle Maintenance Screen based on the mode
-        if (maintenanceMode) {
-            document.getElementById("main-content").style.display = 'none';  // Hide main content
-            document.getElementById("offline").style.display = 'block';  // Show maintenance screen
-          } else
+// Toggle Maintenance Screen based on the mode
+if (maintenanceMode) {
+    document.getElementById("main-content").style.display = 'none';  // Hide main content
+    document.getElementById("offline").style.display = 'block';  // Show maintenance screen
+} else {
     document.getElementById("main-content").style.display = 'none';  // Hide main content initially
     document.getElementById("offline").style.display = 'none';  // Hide maintenance screen
 }
 
 // Function to generate a random 5-digit ID
-        function generateRandomId() {
-            return Math.floor(Math.random() * 90000) + 10000; // 5 digits between 10000 and 99999
-        }
+function generateRandomId() {
+    return Math.floor(Math.random() * 90000) + 10000; // 5 digits between 10000 and 99999
+}
 
-        // Simulate server connection delay (using setTimeout)
-        setTimeout(function() {
-            // Hide the loading screen and show the main content
-            document.getElementById("loading").style.display = 'none';
-            document.getElementById("main-content").style.display = 'block';
+// Simulate server connection delay (using setTimeout)
+setTimeout(function() {
+    // Hide the loading screen and show the main content
+    document.getElementById("loading").style.display = 'none';
+    document.getElementById("main-content").style.display = 'block';
 
-            // Generate a random ID and display it
-            const randomId = generateRandomId();
-            document.getElementById('random-id').textContent = `Your Guest ID: ${randomId}`;
+    // Generate a random ID and display it
+    const randomId = generateRandomId();
+    document.getElementById('random-id').textContent = `Your Guest ID: ${randomId}`;
 
-            // Add functionality to the "Guest Login" button
-            document.getElementById('guest-login-btn').addEventListener('click', function() {
-                alert(`Welcome, Guest ID: ${randomId}`);
-                // You can redirect to the actual main page or keep this page for now
-                // window.location.href = '/main-page'; // Example for redirecting to another page
-            });
-        }, 3000); // Simulate 3 seconds of loading time 
+    // Add functionality to the "Guest Login" button
+    document.getElementById('guest-login-btn').addEventListener('click', function() {
+        alert(`Welcome, Guest ID: ${randomId}`);
+    });
+}, 3000); // Simulate 3 seconds of loading time
 </script>
+
 </body>
 </html>
