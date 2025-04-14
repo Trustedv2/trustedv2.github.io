@@ -73,7 +73,107 @@ setTimeout(function() {
         alert(`Welcome, Guest ID: ${randomId}`);
     });
 }, 3000); // Simulate 3 seconds of loading time
-</script>
 
+// Initializing local storage for users
+        if (!localStorage.getItem("users")) {
+            localStorage.setItem("users", JSON.stringify([])); // Empty users list initially
+        }
+
+        // Show Register Form
+        function showRegisterForm() {
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("register-screen").classList.remove("hidden");
+        }
+
+        // Show Login Form
+        function showLoginForm() {
+            document.getElementById("register-screen").classList.add("hidden");
+            document.getElementById("login-screen").classList.remove("hidden");
+        }
+
+        // Handle Login Logic
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const users = JSON.parse(localStorage.getItem("users"));
+            
+            const user = users.find(user => user.username === username && user.password === password);
+            
+            if (user) {
+                localStorage.setItem("loggedInUser", JSON.stringify(user));
+                showMainContent();
+            } else {
+                alert("Invalid login credentials.");
+            }
+        }
+
+        // Handle Account Creation
+        function createAccount() {
+            const username = document.getElementById("register-username").value;
+            const password = document.getElementById("register-password").value;
+
+            if (password.length < 8) {
+                alert("Password must be at least 8 characters long.");
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem("users"));
+            const existingUser = users.find(user => user.username === username);
+            
+            if (existingUser) {
+                alert("Username already taken.");
+                return;
+            }
+
+            const newUser = { username, password };
+            users.push(newUser);
+            localStorage.setItem("users", JSON.stringify(users));
+            alert("Account created successfully.");
+            showLoginForm();
+        }
+
+        // Show Main Content after Login
+        function showMainContent() {
+            const user = JSON.parse(localStorage.getItem("loggedInUser"));
+            document.getElementById("logged-in-user").textContent = user.username;
+            
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("main-content").classList.remove("hidden");
+        }
+
+        // Handle Create Post
+        function createPost() {
+            const title = document.getElementById("post-title").value;
+            const content = document.getElementById("post-content").value;
+
+            if (!title || !content) {
+                alert("Please provide a title and content for the post.");
+                return;
+            }
+
+            alert("Post created successfully!");
+            // For now, we just alert and reset fields. Later, we can add code to store posts.
+        }
+
+        // Handle Chat Messages
+        function sendMessage() {
+            const username = document.getElementById("chat-username").value;
+            const message = document.getElementById("chat-message").value;
+
+            if (!username || !message) {
+                alert("Please enter a username and a message.");
+                return;
+            }
+
+            const chatMessagesDiv = document.getElementById("chat-messages");
+            const newMessage = document.createElement("p");
+            newMessage.textContent = `${username}: ${message}`;
+            chatMessagesDiv.appendChild(newMessage);
+            
+            // Clear input fields after sending the message
+            document.getElementById("chat-username").value = '';
+            document.getElementById("chat-message").value = '';
+        }
+</script>
 </body>
 </html>
