@@ -31,6 +31,10 @@ p   {color: black;}
         if (maintenanceMode) {
             document.getElementById("main-content").style.display = 'none';  // Hide main content
             document.getElementById("offline").style.display = 'block';  // Show maintenance screen
+          } else {
+    document.getElementById("main-content").style.display = 'none';  // Hide main content initially
+    document.getElementById("offline").style.display = 'none';  // Hide maintenance screen
+}
         }
 
 // Function to generate a random 5-digit ID
