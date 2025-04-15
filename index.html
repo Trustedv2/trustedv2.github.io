@@ -3,57 +3,72 @@
 <head>
   <title>TrustedV2 Forum</title>
   <style>
-    body { background-color: white; }
-    h1, p, label { color: black; }
-    #main-content, #post-section, #chat-section { display: none; }
+    body { background-color: white; font-family: sans-serif; }
+    h1, p { color: black; }
+    #main-content, #login-section, #forum-section, #user-posts-section, #chat-section {
+      display: none;
+    }
+    .post, .user-post {
+      border: 1px solid black;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    textarea { width: 100%; height: 60px; }
+    input, button {
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
 
-<!-- Maintenance Message -->
+<div id="loading">
+  <h1>Connecting to Server...</h1>
+</div>
+
 <div id="offline" style="display: none;">
   <h1>The server is offline. We will be back online.</h1>
 </div>
 
-<!-- Loading Screen -->
-<div id="loading">
-  <h1>Loading Screen</h1>
-  <p>Connecting to server...</p>
-</div>
-
-<!-- Main Content -->
 <div id="main-content">
   <h1>TrustedV2 Forum</h1>
-  <p>Welcome to the website where you see forum pages</p>
+  <p id="random-id"></p>
 
-  <!-- Account Creation -->
-  <h2>Create Account</h2>
-  <label>Username:</label>
-  <input type="text" id="create-username"><br>
-  <label>Password (min 8 chars):</label>
-  <input type="password" id="create-password"><br>
-  <button id="create-account-btn">Create Account</button>
+  <div id="login-section">
+    <h2>Login / Register</h2>
+    <input type="text" id="username" placeholder="Username"><br>
+    <input type="password" id="password" placeholder="Password (8+ chars)"><br>
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+    <button onclick="guestLogin()">Login as Guest</button>
+  </div>
 
-  <!-- Login -->
-  <h2>Login</h2>
-  <label>Username:</label>
-  <input type="text" id="login-username"><br>
-  <label>Password:</label>
-  <input type="password" id="login-password"><br>
-  <button id="login-btn">Login</button>
+  <div id="forum-section">
+    <h2>Create Post</h2>
+    <input type="text" id="post-title" placeholder="Post Title"><br>
+    <textarea id="post-message" placeholder="Write your post..."></textarea><br>
+    <button onclick="createPost()">Submit Post</button>
 
-  <p id="login-status"></p>
-</div>
+    <h2>All Posts</h2>
+    <div id="all-posts"></div>
 
-<!-- Post Section -->
-<div id="post-section">
-  <h2>Create a Post</h2>
-  <label>Title:</label>
-  <input type="text" id="post-title"><br>
-  <label>Message:</label>
-  <textarea id="post-message"></textarea><br>
-  <button id="submit-post">Submit Post</button>
-  <div id="posts"></div>
+    <button onclick="showUserPosts()">See My Posts</button>
+    <button onclick="showChat()">Chat</button>
+  </div>
+
+  <div id="user-posts-section">
+    <h2>Your Posts</h2>
+    <div id="user-posts"></div>
+    <button onclick="backToForum()">Back</button>
+  </div>
+
+  <div id="chat-section">
+    <h2>Chat</h2>
+    <input type="text" id="friend-name" placeholder="Friend Username"><br>
+    <textarea id="chat-message" placeholder="Message..."></textarea><br>
+    <button onclick="sendMessage()">Send Message</button>
+    <div id="chat-box"></div>
+    <button onclick="backToForum()">Back</button>
+  </div>
 </div>
 
 <script>
@@ -63,59 +78,160 @@
     document.getElementById("loading").style.display = 'none';
     document.getElementById("offline").style.display = 'block';
   } else {
-    document.getElementById("offline").style.display = 'none';
-
     setTimeout(() => {
       document.getElementById("loading").style.display = 'none';
       document.getElementById("main-content").style.display = 'block';
+      document.getElementById("login-section").style.display = 'block';
+      document.getElementById("random-id").textContent = "Your Guest ID: " + generateRandomId();
+      loadPosts();
     }, 2000);
   }
 
-  // Account creation
-  document.getElementById("create-account-btn").addEventListener("click", () => {
-    const username = document.getElementById("create-username").value.trim();
-    const password = document.getElementById("create-password").value;
+  let currentUser = null;
 
-    if (username && password.length >= 8) {
-      localStorage.setItem("user_" + username, password);
+  function generateRandomId() {
+    return Math.floor(Math.random() * 90000) + 10000;
+  }
+
+  function guestLogin() {
+    currentUser = "Guest";
+    enterForum();
+  }
+
+  function register() {
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+
+    if (pass.length < 8) {
+      alert("Password must be at least 8 characters.");
+      return;
+    }
+
+    if (localStorage.getItem("user-" + user)) {
+      alert("User already exists.");
+    } else {
+      localStorage.setItem("user-" + user, JSON.stringify({ password: pass, friends: [] }));
       alert("Account created!");
-    } else {
-      alert("Username required. Password must be at least 8 characters.");
     }
-  });
+  }
 
-  // Login
-  document.getElementById("login-btn").addEventListener("click", () => {
-    const username = document.getElementById("login-username").value.trim();
-    const password = document.getElementById("login-password").value;
-    const savedPassword = localStorage.getItem("user_" + username);
+  function login() {
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+    const data = localStorage.getItem("user-" + user);
 
-    if (savedPassword && savedPassword === password) {
-      document.getElementById("login-status").textContent = "Login successful!";
-      document.getElementById("post-section").style.display = "block";
-      localStorage.setItem("loggedInUser", username);
+    if (!data) {
+      alert("User does not exist.");
     } else {
-      document.getElementById("login-status").textContent = "Invalid credentials.";
+      const userData = JSON.parse(data);
+      if (userData.password === pass) {
+        currentUser = user;
+        enterForum();
+      } else {
+        alert("Wrong password.");
+      }
     }
-  });
+  }
 
-  // Post creation
-  document.getElementById("submit-post").addEventListener("click", () => {
+  function enterForum() {
+    document.getElementById("login-section").style.display = 'none';
+    document.getElementById("forum-section").style.display = 'block';
+    loadPosts();
+  }
+
+  function createPost() {
     const title = document.getElementById("post-title").value;
     const message = document.getElementById("post-message").value;
-    const postsDiv = document.getElementById("posts");
+    const post = { user: currentUser, title, message, id: Date.now() };
 
-    if (title && message) {
-      const post = document.createElement("div");
-      post.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
-      postsDiv.appendChild(post);
+    const posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts.push(post);
+    localStorage.setItem("posts", JSON.stringify(posts));
 
-      document.getElementById("post-title").value = "";
-      document.getElementById("post-message").value = "";
-    } else {
-      alert("Please enter both title and message.");
-    }
-  });
+    document.getElementById("post-title").value = "";
+    document.getElementById("post-message").value = "";
+    loadPosts();
+  }
+
+  function loadPosts() {
+    const posts = JSON.parse(localStorage.getItem("posts")) || [];
+    const container = document.getElementById("all-posts");
+    container.innerHTML = "";
+
+    posts.forEach(post => {
+      const div = document.createElement("div");
+      div.className = "post";
+      div.innerHTML = `<strong>${post.user}</strong><br><b>${post.title}</b><br>${post.message}`;
+      if (post.user === currentUser) {
+        div.innerHTML += `<br><button onclick="deletePost(${post.id})">Delete</button>`;
+      }
+      container.appendChild(div);
+    });
+  }
+
+  function deletePost(postId) {
+    let posts = JSON.parse(localStorage.getItem("posts")) || [];
+    posts = posts.filter(post => post.id !== postId);
+    localStorage.setItem("posts", JSON.stringify(posts));
+    loadPosts();
+  }
+
+  function showUserPosts() {
+    document.getElementById("forum-section").style.display = 'none';
+    document.getElementById("user-posts-section").style.display = 'block';
+
+    const posts = JSON.parse(localStorage.getItem("posts")) || [];
+    const myPosts = posts.filter(post => post.user === currentUser);
+
+    const container = document.getElementById("user-posts");
+    container.innerHTML = "";
+
+    myPosts.forEach(post => {
+      const div = document.createElement("div");
+      div.className = "user-post";
+      div.innerHTML = `<b>${post.title}</b><br>${post.message}`;
+      container.appendChild(div);
+    });
+  }
+
+  function backToForum() {
+    document.getElementById("user-posts-section").style.display = 'none';
+    document.getElementById("chat-section").style.display = 'none';
+    document.getElementById("forum-section").style.display = 'block';
+  }
+
+  function showChat() {
+    document.getElementById("forum-section").style.display = 'none';
+    document.getElementById("chat-section").style.display = 'block';
+    loadChat();
+  }
+
+  function sendMessage() {
+    const friend = document.getElementById("friend-name").value;
+    const msg = document.getElementById("chat-message").value;
+
+    const chatKey = `chat-${currentUser}-${friend}`;
+    const messages = JSON.parse(localStorage.getItem(chatKey)) || [];
+    messages.push({ from: currentUser, to: friend, text: msg });
+    localStorage.setItem(chatKey, JSON.stringify(messages));
+
+    document.getElementById("chat-message").value = "";
+    loadChat();
+  }
+
+  function loadChat() {
+    const friend = document.getElementById("friend-name").value;
+    const chatKey = `chat-${currentUser}-${friend}`;
+    const messages = JSON.parse(localStorage.getItem(chatKey)) || [];
+
+    const box = document.getElementById("chat-box");
+    box.innerHTML = "";
+    messages.forEach(m => {
+      const p = document.createElement("p");
+      p.textContent = `${m.from}: ${m.text}`;
+      box.appendChild(p);
+    });
+  }
 </script>
 
 </body>
