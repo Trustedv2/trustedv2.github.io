@@ -4,234 +4,238 @@
   <title>TrustedV2 Forum</title>
   <style>
     body { background-color: white; font-family: sans-serif; }
-    h1, p { color: black; }
-    #main-content, #login-section, #forum-section, #user-posts-section, #chat-section {
-      display: none;
-    }
-    .post, .user-post {
-      border: 1px solid black;
-      padding: 10px;
-      margin: 10px 0;
-    }
-    textarea { width: 100%; height: 60px; }
-    input, button {
-      margin: 5px 0;
-    }
+    h1, p, label { color: black; }
+    .hidden { display: none; }
+    button { background: grey; color: black; margin: 5px; }
   </style>
 </head>
 <body>
 
+<!-- Maintenance -->
+<div id="offline" class="hidden">
+  <h1>The server is offline. We'll be back online.</h1>
+</div>
+
+<!-- Loading -->
 <div id="loading">
-  <h1>Connecting to Server...</h1>
+  <h1>Loading Screen</h1>
+  <p>Connecting to server...</p>
 </div>
 
-<div id="offline" style="display: none;">
-  <h1>The server is offline. We will be back online.</h1>
+<!-- Login/Register -->
+<div id="auth" class="hidden">
+  <h1>Login / Register</h1>
+  <label>Username: <input id="username"></label><br>
+  <label>Password: <input id="password" type="password"></label><br>
+  <button onclick="authUser()">Login / Register</button>
+  <p>Forgot password? Contact: markinbox23@gmail.com</p>
 </div>
 
-<div id="main-content">
+<!-- Main Content -->
+<div id="main-content" class="hidden">
   <h1>TrustedV2 Forum</h1>
-  <p id="random-id"></p>
-
-  <div id="login-section">
-    <h2>Login / Register</h2>
-    <input type="text" id="username" placeholder="Username"><br>
-    <input type="password" id="password" placeholder="Password (8+ chars)"><br>
-    <button onclick="register()">Register</button>
-    <button onclick="login()">Login</button>
-    <button onclick="guestLogin()">Login as Guest</button>
+  <p>Welcome, <span id="current-user"></span></p>
+  
+  <div id="admin-panel" class="hidden">
+    <h2>Admin Panel</h2>
+    <label>Target Username: <input id="admin-target-user"></label><br>
+    <button onclick="resetUser()">Reset Password</button>
+    <button onclick="suspendUser()">Suspend User</button>
+    <button onclick="renameUser()">Change Username</button>
   </div>
 
-  <div id="forum-section">
+  <div>
     <h2>Create Post</h2>
-    <input type="text" id="post-title" placeholder="Post Title"><br>
-    <textarea id="post-message" placeholder="Write your post..."></textarea><br>
-    <button onclick="createPost()">Submit Post</button>
+    <label>Title: <input id="post-title"></label><br>
+    <label>Message: <input id="post-message"></label><br>
+    <button onclick="createPost()">Post</button>
+  </div>
 
+  <div>
     <h2>All Posts</h2>
-    <div id="all-posts"></div>
-
-    <button onclick="showUserPosts()">See My Posts</button>
-    <button onclick="showChat()">Chat</button>
+    <ul id="posts-list"></ul>
   </div>
 
-  <div id="user-posts-section">
-    <h2>Your Posts</h2>
-    <div id="user-posts"></div>
-    <button onclick="backToForum()">Back</button>
+  <div>
+    <h2>Friends</h2>
+    <label>Add Friend by Username: <input id="friend-username"></label>
+    <button onclick="addFriend()">Send Request</button>
+    <ul id="friends-list"></ul>
   </div>
 
-  <div id="chat-section">
-    <h2>Chat</h2>
-    <input type="text" id="friend-name" placeholder="Friend Username"><br>
-    <textarea id="chat-message" placeholder="Message..."></textarea><br>
-    <button onclick="sendMessage()">Send Message</button>
-    <div id="chat-box"></div>
-    <button onclick="backToForum()">Back</button>
+  <div>
+    <h2>Send Message</h2>
+    <label>To (Friend): <input id="chat-user"></label><br>
+    <label>Message: <input id="chat-message"></label>
+    <button onclick="sendMessage()">Send</button>
+    <ul id="chat-box"></ul>
   </div>
 </div>
 
 <script>
-  const maintenanceMode = false;
+// Maintenance Mode
+const maintenanceMode = false;
+if (maintenanceMode) {
+  document.getElementById("loading").classList.add("hidden");
+  document.getElementById("offline").classList.remove("hidden");
+} else {
+  document.getElementById("offline").classList.add("hidden");
+  setTimeout(() => {
+    document.getElementById("loading").classList.add("hidden");
+    document.getElementById("auth").classList.remove("hidden");
+  }, 2000);
+}
 
-  if (maintenanceMode) {
-    document.getElementById("loading").style.display = 'none';
-    document.getElementById("offline").style.display = 'block';
+let currentUser = null;
+
+// User Auth
+function authUser() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+
+  if (!username || password.length < 8) return alert("Password must be 8+ characters");
+
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+
+  if (users[username]) {
+    if (users[username].password !== password)
+      return alert("Incorrect password");
+    if (users[username].suspended)
+      return alert("Account suspended");
   } else {
-    setTimeout(() => {
-      document.getElementById("loading").style.display = 'none';
-      document.getElementById("main-content").style.display = 'block';
-      document.getElementById("login-section").style.display = 'block';
-      document.getElementById("random-id").textContent = "Your Guest ID: " + generateRandomId();
-      loadPosts();
-    }, 2000);
+    users[username] = { password, posts: [], friends: [], messages: {}, suspended: false };
+    localStorage.setItem("users", JSON.stringify(users));
   }
 
-  let currentUser = null;
+  currentUser = username;
+  localStorage.setItem("loggedIn", username);
+  document.getElementById("auth").classList.add("hidden");
+  document.getElementById("main-content").classList.remove("hidden");
+  document.getElementById("current-user").textContent = username;
 
-  function generateRandomId() {
-    return Math.floor(Math.random() * 90000) + 10000;
+  if (username.toLowerCase() === "admin") {
+    document.getElementById("admin-panel").classList.remove("hidden");
   }
 
-  function guestLogin() {
-    currentUser = "Guest";
-    enterForum();
-  }
+  showPosts();
+  showFriends();
+  showChat();
+}
 
-  function register() {
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
+// Post Creation
+function createPost() {
+  const title = document.getElementById("post-title").value;
+  const message = document.getElementById("post-message").value;
+  const users = JSON.parse(localStorage.getItem("users"));
+  users[currentUser].posts.push({ title, message });
+  localStorage.setItem("users", JSON.stringify(users));
+  showPosts();
+}
 
-    if (pass.length < 8) {
-      alert("Password must be at least 8 characters.");
-      return;
-    }
-
-    if (localStorage.getItem("user-" + user)) {
-      alert("User already exists.");
-    } else {
-      localStorage.setItem("user-" + user, JSON.stringify({ password: pass, friends: [] }));
-      alert("Account created!");
-    }
-  }
-
-  function login() {
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
-    const data = localStorage.getItem("user-" + user);
-
-    if (!data) {
-      alert("User does not exist.");
-    } else {
-      const userData = JSON.parse(data);
-      if (userData.password === pass) {
-        currentUser = user;
-        enterForum();
-      } else {
-        alert("Wrong password.");
+function showPosts() {
+  const users = JSON.parse(localStorage.getItem("users"));
+  const list = document.getElementById("posts-list");
+  list.innerHTML = "";
+  Object.entries(users).forEach(([user, data]) => {
+    data.posts.forEach((post, index) => {
+      const li = document.createElement("li");
+      li.textContent = `${user}: ${post.title} - ${post.message}`;
+      if (user === currentUser) {
+        const del = document.createElement("button");
+        del.textContent = "Delete";
+        del.onclick = () => {
+          data.posts.splice(index, 1);
+          localStorage.setItem("users", JSON.stringify(users));
+          showPosts();
+        };
+        li.appendChild(del);
       }
-    }
-  }
-
-  function enterForum() {
-    document.getElementById("login-section").style.display = 'none';
-    document.getElementById("forum-section").style.display = 'block';
-    loadPosts();
-  }
-
-  function createPost() {
-    const title = document.getElementById("post-title").value;
-    const message = document.getElementById("post-message").value;
-    const post = { user: currentUser, title, message, id: Date.now() };
-
-    const posts = JSON.parse(localStorage.getItem("posts")) || [];
-    posts.push(post);
-    localStorage.setItem("posts", JSON.stringify(posts));
-
-    document.getElementById("post-title").value = "";
-    document.getElementById("post-message").value = "";
-    loadPosts();
-  }
-
-  function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem("posts")) || [];
-    const container = document.getElementById("all-posts");
-    container.innerHTML = "";
-
-    posts.forEach(post => {
-      const div = document.createElement("div");
-      div.className = "post";
-      div.innerHTML = `<strong>${post.user}</strong><br><b>${post.title}</b><br>${post.message}`;
-      if (post.user === currentUser) {
-        div.innerHTML += `<br><button onclick="deletePost(${post.id})">Delete</button>`;
-      }
-      container.appendChild(div);
+      list.appendChild(li);
     });
+  });
+}
+
+// Friend System
+function addFriend() {
+  const friend = document.getElementById("friend-username").value.trim();
+  const users = JSON.parse(localStorage.getItem("users"));
+  if (!users[friend]) return alert("User not found");
+  if (!users[currentUser].friends.includes(friend)) {
+    users[currentUser].friends.push(friend);
+    localStorage.setItem("users", JSON.stringify(users));
+    showFriends();
   }
+}
 
-  function deletePost(postId) {
-    let posts = JSON.parse(localStorage.getItem("posts")) || [];
-    posts = posts.filter(post => post.id !== postId);
-    localStorage.setItem("posts", JSON.stringify(posts));
-    loadPosts();
-  }
+function showFriends() {
+  const users = JSON.parse(localStorage.getItem("users"));
+  const list = document.getElementById("friends-list");
+  list.innerHTML = "";
+  users[currentUser].friends.forEach(f => {
+    const li = document.createElement("li");
+    li.textContent = f;
+    list.appendChild(li);
+  });
+}
 
-  function showUserPosts() {
-    document.getElementById("forum-section").style.display = 'none';
-    document.getElementById("user-posts-section").style.display = 'block';
+// Messaging
+function sendMessage() {
+  const to = document.getElementById("chat-user").value.trim();
+  const msg = document.getElementById("chat-message").value;
+  const users = JSON.parse(localStorage.getItem("users"));
+  if (!users[to] || !users[currentUser].friends.includes(to)) return alert("Not your friend");
+  users[to].messages[currentUser] = users[to].messages[currentUser] || [];
+  users[to].messages[currentUser].push(msg);
+  localStorage.setItem("users", JSON.stringify(users));
+  alert("Message sent");
+}
 
-    const posts = JSON.parse(localStorage.getItem("posts")) || [];
-    const myPosts = posts.filter(post => post.user === currentUser);
-
-    const container = document.getElementById("user-posts");
-    container.innerHTML = "";
-
-    myPosts.forEach(post => {
-      const div = document.createElement("div");
-      div.className = "user-post";
-      div.innerHTML = `<b>${post.title}</b><br>${post.message}`;
-      container.appendChild(div);
+function showChat() {
+  const users = JSON.parse(localStorage.getItem("users"));
+  const box = document.getElementById("chat-box");
+  box.innerHTML = "";
+  const msgs = users[currentUser].messages;
+  Object.entries(msgs).forEach(([from, messages]) => {
+    messages.forEach(msg => {
+      const li = document.createElement("li");
+      li.textContent = `${from}: ${msg}`;
+      box.appendChild(li);
     });
+  });
+}
+
+// Admin Tools
+function resetUser() {
+  const target = document.getElementById("admin-target-user").value.trim();
+  const users = JSON.parse(localStorage.getItem("users"));
+  if (users[target]) {
+    users[target].password = "password123";
+    localStorage.setItem("users", JSON.stringify(users));
+    alert("Password reset to 'password123'");
   }
+}
 
-  function backToForum() {
-    document.getElementById("user-posts-section").style.display = 'none';
-    document.getElementById("chat-section").style.display = 'none';
-    document.getElementById("forum-section").style.display = 'block';
+function suspendUser() {
+  const target = document.getElementById("admin-target-user").value.trim();
+  const users = JSON.parse(localStorage.getItem("users"));
+  if (users[target]) {
+    users[target].suspended = true;
+    localStorage.setItem("users", JSON.stringify(users));
+    alert("User suspended");
   }
+}
 
-  function showChat() {
-    document.getElementById("forum-section").style.display = 'none';
-    document.getElementById("chat-section").style.display = 'block';
-    loadChat();
+function renameUser() {
+  const target = document.getElementById("admin-target-user").value.trim();
+  const newName = prompt("New username?");
+  const users = JSON.parse(localStorage.getItem("users"));
+  if (users[target] && newName && !users[newName]) {
+    users[newName] = users[target];
+    delete users[target];
+    localStorage.setItem("users", JSON.stringify(users));
+    alert("Username changed");
   }
-
-  function sendMessage() {
-    const friend = document.getElementById("friend-name").value;
-    const msg = document.getElementById("chat-message").value;
-
-    const chatKey = `chat-${currentUser}-${friend}`;
-    const messages = JSON.parse(localStorage.getItem(chatKey)) || [];
-    messages.push({ from: currentUser, to: friend, text: msg });
-    localStorage.setItem(chatKey, JSON.stringify(messages));
-
-    document.getElementById("chat-message").value = "";
-    loadChat();
-  }
-
-  function loadChat() {
-    const friend = document.getElementById("friend-name").value;
-    const chatKey = `chat-${currentUser}-${friend}`;
-    const messages = JSON.parse(localStorage.getItem(chatKey)) || [];
-
-    const box = document.getElementById("chat-box");
-    box.innerHTML = "";
-    messages.forEach(m => {
-      const p = document.createElement("p");
-      p.textContent = `${m.from}: ${m.text}`;
-      box.appendChild(p);
-    });
-  }
+}
 </script>
 
 </body>
