@@ -1,46 +1,63 @@
 <!DOCTYPE html>
+<html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TrustedV2 Forum</title>
   <style>
-    body { background-color: white; font-family: sans-serif; }
-    h1, p, label { color: black; }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #loading, #offline, #main-content {
+      margin-top: 50px;
+    }
   </style>
   <link rel="icon" type="image/png" href="logo2.png">
 </head>
 
 <body>
 
-<!-- Maintenance -->
-<div id="offline" class="hidden">
-  <h1>The server is offline. We'll be back online.</h1>
-</div>
+  <!-- Maintenance -->
+  <div id="offline" class="hidden">
+    <h1>The server is offline. We'll be back online.</h1>
+  </div>
 
-<!-- Loading -->
-<div id="loading">
-  <h1>Loading Screen</h1>
-  <p>Connecting to server...</p>
-</div>
+  <!-- Loading -->
+  <div id="loading">
+    <h1>Loading...</h1>
+    <p>Connecting to server...</p>
+  </div>
 
-<!-- Main Content -->
-<div id="main-content" class="hidden">
-  <h1>TrustedV2 Forum</h1>
-  <p>Welcome, <span id="current-user"></span></p>
+  <!-- Main Content -->
+  <div id="main-content" class="hidden">
+    <h1>TrustedV2 Forum</h1>
+    <p>Welcome, <span id="current-user"></span></p>
+  </div>
+
+  <script>
+    // Maintenance Mode
+    const maintenanceMode = false;
+    if (maintenanceMode) {
+      document.getElementById("loading").classList.add("hidden");
+      document.getElementById("offline").classList.remove("hidden");
+    } else {
+      document.getElementById("offline").classList.add("hidden");
+      setTimeout(() => {
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("main-content").classList.remove("hidden"); // Main content will show now
+      }, 2000);
+    }
+  </script>
+
 </body>
 
-<script>
-// Maintenance Mode
-const maintenanceMode = false;
-if (maintenanceMode) {
-  document.getElementById("loading").classList.add("hidden");
-  document.getElementById("offline").classList.remove("hidden");
-} else {
-  document.getElementById("offline").classList.add("hidden");
-  setTimeout(() => {
-    document.getElementById("loading").classList.add("hidden");
-  }, 2000);
-}
-</script>
-
-</body>
 </html>
