@@ -5,8 +5,6 @@
   <style>
     body { background-color: white; font-family: sans-serif; }
     h1, p, label { color: black; }
-    .hidden { display: none; }
-    button { background: grey; color: black; margin: 5px; }
   </style>
   <link rel="icon" type="image/png" href="logo2.png">
 </head>
@@ -40,7 +38,6 @@ if (maintenanceMode) {
   document.getElementById("offline").classList.add("hidden");
   setTimeout(() => {
     document.getElementById("loading").classList.add("hidden");
-    document.getElementById("auth").classList.remove("hidden");
   }, 2000);
 }
 </script>
