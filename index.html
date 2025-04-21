@@ -25,39 +25,11 @@
 </head>
 
 <body>
-
-  <!-- Maintenance -->
-  <div id="offline" class="hidden">
-    <h1>The server is offline. We'll be back online.</h1>
-  </div>
-
-  <!-- Loading -->
-  <div id="loading">
-    <h1>Loading...</h1>
-    <p>Connecting to server...</p>
-  </div>
-
   <!-- Main Content -->
   <div id="main-content" class="hidden">
     <h1>TrustedV2 Games and Apps</h1>
     <p>Welcome to the website where you can buy games from trustedv2<span id="current-user"></span></p>
   </div>
-
-  <script>
-    // Maintenance Mode
-    const maintenanceMode = true;
-    if (maintenanceMode) {
-      document.getElementById("loading").classList.add("hidden");
-      document.getElementById("offline").classList.remove("hidden");
-    } else {
-      document.getElementById("offline").classList.add("hidden");
-      setTimeout(() => {
-        document.getElementById("loading").classList.add("hidden");
-        document.getElementById("main-content").classList.remove("hidden"); // Main content will show now
-      }, 2000);
-    }
-  </script>
-
 </body>
 
 </html>
